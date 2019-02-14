@@ -165,7 +165,7 @@ if grep -q "^CONFIG_OF=y" $KCONFIG_CONFIG ; then
 fi
 
 if grep -q '^CONFIG_MODULES=y' $KCONFIG_CONFIG ; then
-	INSTALL_MOD_PATH="$tmpdir" $MAKE KBUILD_SRC= modules_install
+	INSTALL_MOD_PATH="$tmpdir" $MAKE -f $srctree/Makefile modules_install
 	rm -f "$tmpdir/lib/modules/$version/build"
 	rm -f "$tmpdir/lib/modules/$version/source"
 	if [ "$ARCH" = "um" ] ; then
