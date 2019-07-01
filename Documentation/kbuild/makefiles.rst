@@ -1115,8 +1115,14 @@ When kbuild executes, the following steps are followed (roughly):
 	In this example, extra-y is used to list object files that
 	shall be built, but shall not be linked as part of built-in.a.
 
+	header-test-y specifies headers (*.h) in the current directory that
+	should be compile tested to ensure they are self-contained,
+	i.e. compilable as standalone units. If CONFIG_HEADER_TEST is enabled,
+	this builds them as part of extra-y.
+
 6.7 Commands useful for building a boot image
 ---------------------------------------------
+
 
     Kbuild provides a few macros that are useful when building a
     boot image.

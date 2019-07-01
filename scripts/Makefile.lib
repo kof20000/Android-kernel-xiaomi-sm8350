@@ -72,6 +72,19 @@ extra-y += $(patsubst %.dtb,%.dt.yaml, $(dtb-y))
 extra-$(CONFIG_OF_ALL_DTBS) += $(patsubst %.dtb,%.dt.yaml, $(dtb-))
 endif
 
+# DTB
+# If CONFIG_OF_ALL_DTBS is enabled, all DT blobs are built
+extra-y				+= $(dtb-y)
+extra-$(CONFIG_OF_ALL_DTBS)	+= $(dtb-)
+
+ifneq ($(CHECK_DTBS),)
+extra-y += $(patsubst %.dtb,%.dt.yaml, $(dtb-y))
+extra-$(CONFIG_OF_ALL_DTBS) += $(patsubst %.dtb,%.dt.yaml, $(dtb-))
+endif
+
+# Test self-contained headers
+extra-$(CONFIG_HEADER_TEST) += $(addsuffix .s, $(header-test-y))
+
 # Add subdir path
 
 extra-y		:= $(addprefix $(obj)/,$(extra-y))
