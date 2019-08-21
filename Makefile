@@ -1564,16 +1564,12 @@ CLEAN_FILES += modules.builtin.modinfo
 MRPROPER_DIRS  += include/config include/generated          \
 		  arch/$(SRCARCH)/include/generated .tmp_objdiff \
 		  debian/ snap/ tar-install/
-MRPROPER_FILES += .config .config.old .version \
-		  Module.symvers \
+MRPROPER_FILES += .config .config.old .version .old_version \
+		  Module.symvers tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS \
 		  signing_key.pem signing_key.priv signing_key.x509	\
 		  x509.genkey extra_certificates signing_key.x509.keyid	\
 		  signing_key.x509.signer vmlinux-gdb.py \
 		  *.spec
-
-# Directories & files removed with 'make distclean'
-DISTCLEAN_DIRS  +=
-DISTCLEAN_FILES += tags TAGS cscope* GPATH GTAGS GRTAGS GSYMS
 
 # clean - Delete most, but leave enough to build external modules
 #
