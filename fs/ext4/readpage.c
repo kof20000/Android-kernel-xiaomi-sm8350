@@ -222,12 +222,6 @@ static inline loff_t ext4_readpage_limit(struct inode *inode)
 	return i_size_read(inode);
 }
 
-static void
-ext4_submit_bio_read(struct bio *bio)
-{
-	submit_bio(bio);
-}
-
 int ext4_mpage_readpages(struct address_space *mapping,
 			 struct list_head *pages, struct page *page,
 			 unsigned nr_pages, bool is_readahead)
@@ -376,7 +370,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
 		if (bio && (last_block_in_bio != blocks[0] - 1 ||
 			    !fscrypt_mergeable_bio(bio, inode, next_block))) {
 		submit_and_realloc:
-			ext4_submit_bio_read(bio);
+			submit_bio(bio);
 			bio = NULL;
 		}
 		if (bio == NULL) {
@@ -409,14 +403,14 @@ int ext4_mpage_readpages(struct address_space *mapping,
 		if (((map.m_flags & EXT4_MAP_BOUNDARY) &&
 		     (relative_block == map.m_len)) ||
 		    (first_hole != blocks_per_page)) {
-			ext4_submit_bio_read(bio);
+			submit_bio(bio);
 			bio = NULL;
 		} else
 			last_block_in_bio = blocks[blocks_per_page - 1];
 		goto next_page;
 	confused:
 		if (bio) {
-			ext4_submit_bio_read(bio);
+			submit_bio(bio);
 			bio = NULL;
 		}
 		if (!PageUptodate(page))
@@ -429,7 +423,7 @@ int ext4_mpage_readpages(struct address_space *mapping,
 	}
 	BUG_ON(pages && !list_empty(pages));
 	if (bio)
-		ext4_submit_bio_read(bio);
+		submit_bio(bio);
 	return 0;
 }
 
