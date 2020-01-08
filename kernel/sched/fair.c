@@ -5729,6 +5729,13 @@ static struct {
 
 #endif /* CONFIG_NO_HZ_COMMON */
 
+/* Runqueue only has SCHED_IDLE tasks enqueued */
+static int sched_idle_rq(struct rq *rq)
+{
+	return unlikely(rq->nr_running == rq->cfs.idle_h_nr_running &&
+			rq->nr_running);
+}
+
 /* CPU only has SCHED_IDLE tasks enqueued */
 static int sched_idle_cpu(int cpu)
 {
