@@ -29,6 +29,8 @@ KASAN_SANITIZE_string.o := n
 CFLAGS_string.o += $(call cc-option, -fno-stack-protector)
 endif
 
+ccflags-y += -O3 -ffast-math
+
 lib-y := ctype.o string.o vsprintf.o cmdline.o \
 	 rbtree.o radix-tree.o timerqueue.o xarray.o \
 	 idr.o extable.o sha1.o irq_regs.o argv_split.o \
