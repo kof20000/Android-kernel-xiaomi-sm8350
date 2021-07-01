@@ -140,8 +140,37 @@ cc-disable-warning = $(call try-run,\
 cc-ifversion = $(shell [ $(CONFIG_GCC_VERSION)0 $(1) $(2)000 ] && echo $(3) || echo $(4))
 
 # ld-option
-# Usage: KBUILD_LDFLAGS += $(call ld-option, -X, -Y)
-ld-option = $(call try-run, $(LD) $(KBUILD_LDFLAGS) $(1) -v,$(1),$(2),$(3))
+# Usage: LDFLAGS += $(call ld-option, -X, -Y)
+ld-option = $(call try-run-cached, $(LD) $(LDFLAGS) $(1) -v,$(1),$(2),$(3))
+
+# ar-option
+# Usage: KBUILD_ARFLAGS := $(call ar-option,D)
+# Important: no spaces around options
+ar-option = $(call try-run-cached, $(AR) rc$(1) "$$TMP",$(1),$(2))
+
+# ld-name
+# Expands to either bfd, gold, or lld
+ifneq (,$(LD))
+	__ld-name = $(shell $(LD) -v 2>&1)
+endif
+ifneq (,$(findstring GNU gold,$(__ld-name)))
+	ld-name = gold
+else
+	ifneq (,$(findstring LLD,$(__ld-name)))
+		ld-name = lld
+	else
+		ld-name = bfd
+	endif
+endif
+ifeq ($(LD),)
+ifneq ($(LLVM),)
+	ld-name = lld
+endif
+endif
+
+# ld-version
+# Note this is mainly for HJ Lu's 3 number binutil versions
+ld-version = $(call shell-cached,$(LD) --version | $(srctree)/scripts/ld-version.sh)
 
 # ld-ifversion
 # Usage:  $(call ld-ifversion, -ge, 22252, y)
