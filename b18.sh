@@ -20,7 +20,7 @@ export AK3_URL="https://github.com/lecmngend/AnyKernel3"
 export AK3_BRANCH="U-haydn"
 export AK3_DIR="$HOME/tc/AK3/$AK3_BRANCH"
 
-export PROC="-j8"
+export PROC="-j11"
 export TARGET_OUT=out
 export ARCH=arm64
 export SUBARCH=arm64
