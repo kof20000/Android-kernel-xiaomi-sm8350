@@ -11309,6 +11309,8 @@ void nohz_balance_enter_idle(int cpu)
 
 	cpumask_clear_cpu(cpu, &cpu_wclaimed_mask);
 
+	cpumask_clear_cpu(cpu, &cpu_wclaimed_mask);
+
 	/* Spare idle load balancing on CPUs that don't want to be disturbed: */
 	if (!housekeeping_cpu(cpu, HK_FLAG_SCHED))
 		return;
