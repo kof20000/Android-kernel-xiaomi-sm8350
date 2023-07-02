@@ -15,6 +15,9 @@ CFLAGS_blk-mq.o := $(call cc-disable-warning, align-mismatch)
 # Disable -Walign-mismatch warnings
 CFLAGS_blk-mq.o := $(call cc-disable-warning, align-mismatch)
 
+# Disable -Walign-mismatch warnings
+CFLAGS_blk-mq.o := $(call cc-disable-warning, align-mismatch)
+
 obj-$(CONFIG_BOUNCE)		+= bounce.o
 obj-$(CONFIG_BLK_SCSI_REQUEST)	+= scsi_ioctl.o
 obj-$(CONFIG_BLK_DEV_BSG)	+= bsg.o
