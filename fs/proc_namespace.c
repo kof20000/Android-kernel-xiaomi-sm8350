@@ -12,6 +12,7 @@
 #include <linux/security.h>
 #include <linux/fs_struct.h>
 #include <linux/sched/task.h>
+#include <linux/suspicious.h>
 
 #include "proc/internal.h" /* only for get_proc_task() in ->open() */
 
@@ -107,6 +108,11 @@ static int show_vfsmnt(struct seq_file *m, struct vfsmount *mnt)
 		return 0;
 #endif
 
+	if (is_suspicious_mount(mnt, &p->root)) {
+		err = SEQ_SKIP;
+		goto out;
+	}
+
 	if (sb->s_op->show_devname) {
 		err = sb->s_op->show_devname(m, mnt_path.dentry);
 		if (err)
@@ -152,6 +158,12 @@ static int show_mountinfo(struct seq_file *m, struct vfsmount *mnt)
 		goto bypass_orig_flow;
 	}
 #endif
+
+	if (is_suspicious_mount(mnt, &p->root)) {
+		err = SEQ_SKIP;
+		goto out;
+	}
+
 	seq_printf(m, "%i %i %u:%u ", r->mnt_id, r->mnt_parent->mnt_id,
 		   MAJOR(sb->s_dev), MINOR(sb->s_dev));
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
@@ -235,6 +247,11 @@ static int show_vfsstat(struct seq_file *m, struct vfsmount *mnt)
 	if (unlikely(r->mnt.mnt_root->d_inode->i_state & 33554432))
 		return 0;
 #endif
+
+	if (is_suspicious_mount(mnt, &p->root)) {
+		err = SEQ_SKIP;
+		goto out;
+	}
 
 	/* device */
 	if (sb->s_op->show_devname) {
