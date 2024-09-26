@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0
+CFLAGS_trace.o := -I$(src)
+
 KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 
 KBUILD_OPTIONS := RMNET_CORE_ROOT=$(PWD)

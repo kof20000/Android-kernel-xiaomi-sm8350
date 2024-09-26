@@ -368,7 +368,7 @@ include scripts/subarch.include
 # Alternatively CROSS_COMPILE can be set in the environment.
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
-ARCH		:= arm64
+ARCH		?= $(SUBARCH)
 
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -398,7 +398,6 @@ endif
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
-CCACHE := ccache
 # SHELL used by kbuild
 CONFIG_SHELL := sh
 
@@ -406,8 +405,8 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
 HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
 HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
-HOSTCC	= $(CCACHE) clang
-HOSTCXX	= $(CCACHE) clang++
+HOSTCC       = ccache clang
+HOSTCXX      = ccache clang++
 KBUILD_HOSTCFLAGS   := -Wmissing-prototypes -Wstrict-prototypes -Ofast \
 		-fomit-frame-pointer -Wno-visibility -std=gnu89 -pipe -Wno-deprecated-declarations $(HOST_LFS_CFLAGS) \
 		$(HOSTCFLAGS)
@@ -416,20 +415,24 @@ KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
 KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 
 # Make variables (CC, etc...)
+AS		= llvm-as
+LD		= ld.lld
+CC		= ccache clang
+LDGOLD		= ld.gold
+LDLLD		= ld.lld
 CPP		= $(CC) -E
-REAL_CC	= $(CCACHE) $(CROSS_COMPILE)clang
-LD		= $(CROSS_COMPILE)ld.lld
-AR		= $(CROSS_COMPILE)llvm-ar
-NM		= $(CROSS_COMPILE)llvm-nm
-OBJCOPY		= $(CROSS_COMPILE)llvm-objcopy
-OBJDUMP		= $(CROSS_COMPILE)llvm-objdump
-READELF		= $(CROSS_COMPILE)llvm-readelf
-OBJSIZE		= $(CROSS_COMPILE)llvm-size
-STRIP		= $(CROSS_COMPILE)llvm-strip
+AR		= llvm-ar
+NM		= llvm-nm
+STRIP		= llvm-strip
+OBJCOPY		= llvm-objcopy
+OBJDUMP		= llvm-objdump
+OBJSIZE		= llvm-size
+READELF		= llvm-readelf
 PAHOLE		= pahole
 LEX		= flex
 YACC		= bison
 AWK		= awk
+GENKSYMS	= scripts/genksyms/genksyms
 INSTALLKERNEL  := installkernel
 DEPMOD		= depmod
 PERL		= perl
@@ -443,14 +446,6 @@ KLZOP		= lzop
 LZMA		= lzma
 LZ4		= lz4c
 XZ		= xz
-
-ifndef DISABLE_WRAPPER
-# Use the wrapper for the compiler.  This wrapper scans for new
-# warnings and causes the build to stop upon encountering them
-CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
-else
-CC		= $(REAL_CC)
-endif
 
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void -Wno-unknown-attribute $(CF)
@@ -480,12 +475,11 @@ LINUXINCLUDE    := \
 		$(USERINCLUDE)
 
 KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
-KBUILD_CFLAGS   := -Wundef -Wno-strict-prototypes -Wno-trigraphs \
+KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
 		   -fno-strict-aliasing -fno-common -fshort-wchar -fno-PIE \
-		   -Werror=implicit-function-declaration -Wno-error=implicit-int \
-		   -Werror=return-type -Wno-format-security -Wno-unused-variable -Wno-unused-function \
-		   -std=gnu89 -Wno-misleading-indentation -Wno-pointer-to-int-cast -Wno-deprecated-declarations \
-		   -pipe
+		   -Werror=implicit-function-declaration -Werror=implicit-int \
+		   -Werror=return-type -Wno-format-security \
+		   -std=gnu89
 KBUILD_CPPFLAGS := -D__KERNEL__
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
@@ -589,7 +583,7 @@ CLANG_FLAGS	+= -no-integrated-as
 GCC_TOOLCHAIN_DIR := $(dir $(shell which $(CROSS_COMPILE)elfedit))
 CLANG_FLAGS	+= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
 endif
-CLANG_FLAGS	+= -Wno-unknown-warning-option
+CLANG_FLAGS	+= -Werror=unknown-warning-option
 CLANG_FLAGS	+= $(call cc-option, -Wno-misleading-indentation)
 CLANG_FLAGS	+= $(call cc-option, -Wno-bool-operation)
 CLANG_FLAGS	+= $(call cc-option, -Wno-unsequenced)
@@ -699,8 +693,8 @@ export RETPOLINE_VDSO_CFLAGS
 ifdef CONFIG_LTO_CLANG
 # LTO produces LLVM IR instead of object files. Use llvm-ar and llvm-nm, so we
 # can process these.
-AR		:= $(CROSS_COMPILE)llvm-ar
-LLVM_NM		:= $(CROSS_COMPILE)llvm-nm
+AR		:= llvm-ar
+LLVM_NM		:= llvm-nm
 export LLVM_NM
 endif
 
@@ -774,6 +768,7 @@ else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS += -Os -ffast-math
 endif
 
+
 # Tell compiler to tune the performance of the code for a specified
 # target processor
 ifeq ($(cc-name),gcc)
@@ -782,7 +777,9 @@ KBUILD_AFLAGS += -mcpu=cortex-a78.cortex-a55 -march=armv8.4-a+crc+crypto
 else ifeq ($(cc-name),clang)
 KBUILD_CFLAGS += -mcpu=kryo -march=armv8.4-a+crc+crypto+aes+lse+sha3
 KBUILD_AFLAGS += -mcpu=kryo -march=armv8.4-a+crc+crypto+aes+lse+sha3
+KBUILD_CFLAGS += -Os
 endif
+
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
@@ -887,14 +884,14 @@ DEBUG_CFLAGS	:= $(call cc-option, -fno-var-tracking-assignments)
 
 ifdef CONFIG_DEBUG_INFO
 ifdef CONFIG_DEBUG_INFO_SPLIT
-DEBUG_CFLAGS	+= -gsplit-dwarf-4
+DEBUG_CFLAGS	+= -gsplit-dwarf
 else
 DEBUG_CFLAGS	+= -g
 endif
 ifeq ($(LLVM_IAS),1)
 KBUILD_AFLAGS	+= -g
 else
-KBUILD_AFLAGS	+= -Wa,-gdwarf-4
+KBUILD_AFLAGS	+= -Wa,-gdwarf-2
 endif
 endif
 
@@ -1622,8 +1619,8 @@ distclean: mrproper
 	$(call cmd,rmfiles)
 	@find $(srctree) $(RCS_FIND_IGNORE) \
 		\( -name '*.orig' -o -name '*.rej' -o -name '*~' \
-		-o -name '*.bak' -o -name '#*#' -o -name '*%' -o -name '.*.orig' \
-		-o -name '.*.rej' -o -name '*%'  -o -name 'core' \) \
+		-o -name '*.bak' -o -name '#*#' -o -name '*%' \
+		-o -name 'core' \) \
 		-type f -print | xargs rm -f
 
 

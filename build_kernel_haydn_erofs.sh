@@ -2,10 +2,14 @@
 export ARCH=arm64
 export SUBARCH=arm64
 
+export TC_BRANCH="clang-15"
+export TC_DIR="$HOME/tc/clang/$TC_BRANCH"
+
+
 KERNELDIR=`readlink -f .`
 
 DEVICE="haydn"
-CONFIG1="agni_haydn_defconfig"
+CONFIG1="haydn_defconfig"
 export AGNI_BUILD_TYPE="AOSP-EROFS"
 SYNC_CONFIG=1
 
@@ -18,11 +22,11 @@ fi
 if [ -f ~/WORKING_DIRECTORY/snapdragon_llvm.sh ]; then
 	. ~/WORKING_DIRECTORY/snapdragon_llvm.sh
 else
-	export CROSS_COMPILE=/PATH_TO/snapdragon_llvm_aarch64_v14.1.4/bin/aarch64-linux-android-
-	export CROSS_COMPILE_ARM32=/PATH_TO/snapdragon_llvm_arm_v14.1.4/bin/arm-linux-androideabi-
-	export CLANG_TRIPLE=aarch64-linux-gnu
+	export CROSS_COMPILE=$TC_DIR/bin/aarch64-linux-gnu-
+	export CROSS_COMPILE_ARM32=$TC_DIR/bin/arm-linux-gnueabi-
+	export CLANG_TRIPLE=aarch64-linux-gnu-
 	#32bit VDSO
-	export CROSS_COMPILE_COMPAT=/PATH_TO/snapdragon_llvm_arm_v14.1.4/bin/arm-linux-androideabi-
+	export CROSS_COMPILE_COMPAT=$TC_DIR/bin/arm-linux-gnueabi-
 fi
 
 if [ ! -d $COMPILEDIR_HAYDN ]; then
