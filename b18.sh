@@ -5,6 +5,8 @@
 # Copyright (C) 2021-2024 @LeCmnGend.
 #
 # Download needed files
+clear
+
 KERNEL_DIR=`pwd`
 export TC_BRANCH="clang-18"
 export TC_DIR="$HOME/tc/clang/$TC_BRANCH"
@@ -41,7 +43,6 @@ export THINLTO_CACHE_DIR="/mnt/e/.ccache/ltocache/"
 export KBUILD_COMPILER_STRING="$($TC_DIR/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
 STRIP="$TC_DIR/bin/$(echo "$(find "$TC_DIR/bin" -type f -name "aarch64-*-gcc")" | awk -F '/' '{print $NF}' |\
 			sed -e 's/gcc/strip/')"
-clear
 #================================================================
 
 # Check if toolchain is exist/ If not then download
@@ -207,7 +208,7 @@ function upload_zip {
 ###########################################################################
 #MAIN
 ###########################################################################
-if [ -f "out/arch/arm64/boot/Image.gz-dtb" ] && [ -f "out/arch/arm64/boot/dtbo.img" ]; then
+if [ -f "out/arch/arm64/boot/Image" ] && [ -f "out/arch/arm64/boot/dtbo.img" ]; then
 		 echo -e "\nKernel compiled succesfully! Zipping up...\n"
 		while read -p "Do you want to create Zip file (y/n/p)? " cchoice
 		do
