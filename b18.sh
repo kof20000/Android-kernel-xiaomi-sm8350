@@ -91,7 +91,7 @@ function make_defconfig {
 
 function make_kernel {
 		echo -e "\nStarting compilation...\n"
-		make $BUILD_PARA Image dtbo.img dtb.img
+		make $BUILD_PARA Image.gz-dtb dtbo.img dtb.img
 }
 
 function link_all_dtb_files {
@@ -110,7 +110,7 @@ function clean_all {
 function create_zip {
 		#Copy AK3 to out/Anykernel13
 		cp -r $AK3_DIR AnyKernel3
-		cp out/arch/arm64/boot/Image AnyKernel3
+		cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3
 		cp out/arch/arm64/boot/dtbo.img AnyKernel3
 		cp out/arch/arm64/boot/dtb.img AnyKernel3
 
@@ -127,9 +127,9 @@ function create_zip {
 }
 
 function create_prebuilt {
-		#Copy Image.gz and dtbo.img to prebuilt folder
+		#Copy Image.gz-dtb.gz and dtbo.img to prebuilt folder
 		mkdir -p prebuilt
-		cp out/arch/arm64/boot/Image prebuilt
+		cp out/arch/arm64/boot/Image.gz-dtb prebuilt
 		cp out/arch/arm64/boot/dtbo.img prebuilt
 		cp out/arch/arm64/boot/dtb.img prebuilt
 		rm -rf out
@@ -186,7 +186,7 @@ case "$cchoice" in
 esac
 done
 
-if [ -f "out/arch/arm64/boot/Image" ] && [ -f "out/arch/arm64/boot/dtbo.img" ]; then
+if [ -f "out/arch/arm64/boot/Image.gz-dtb" ] && [ -f "out/arch/arm64/boot/dtbo.img" ]; then
 		 echo -e "\nKernel compiled succesfully! Zipping up...\n"
 		while read -p "Do you want to create Zip file (y/n/p)? " cchoice
 		do
