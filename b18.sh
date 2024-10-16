@@ -28,21 +28,30 @@ export SUBARCH=arm64
 # Setup environment
 # Kernel Details
 KERNEL_VER="$(date '+%Y%m%d-%H%M')"
-BOT_TOKEN="6698627948:AAHlJ9jBioXyTFH726LwAIs5yx1moZr8vKw"
-CHAT_ID="-1001393783342" #Fuando kernel group
-#
+DEFCONFIG="haydn_defconfig vendor/haydn_QGKI.config"
+ZIPNAME="FuAnDo-haydn-A14-$(date '+%Y%m%d-%H%M').zip"
+BUILD_PARA="$PROC O=$TARGET_OUT ARCH=arm64 \
+            CLANG_PATH=$TC_DIR/bin \
+            CC=clang \
+            CXX=clang++ \
+            HOSTCC=clang \
+            HOSTCXX=clang++ \
+            CROSS_COMPILE=aarch64-linux-gnu- \
+            CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
+            CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
+            CLANG_TRIPLE=aarch64-linux-gnu- \
+            LLVM_IAS=1 LLVM=1"
+# Toolchain environtment
+SECONDS=0 # builtin bash timer
 export USE_CCACHE=1
 export TZ=Asia/Bangkok
-DEFCONFIG="haydn_defconfig"
-SECONDS=0 # builtin bash timer
-ZIPNAME="FuAnDo-haydn-A14-$(date '+%Y%m%d-%H%M').zip"
-
-# Toolchain environtment
 export PATH="$TC_DIR/bin:$PATH" 
 export THINLTO_CACHE_DIR="/mnt/e/.ccache/ltocache/"
 export KBUILD_COMPILER_STRING="$($TC_DIR/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
 STRIP="$TC_DIR/bin/$(echo "$(find "$TC_DIR/bin" -type f -name "aarch64-*-gcc")" | awk -F '/' '{print $NF}' |\
 			sed -e 's/gcc/strip/')"
+BOT_TOKEN="6698627948:AAHlJ9jBioXyTFH726LwAIs5yx1moZr8vKw"
+CHAT_ID="-1001393783342" #Fuando kernel group
 #================================================================
 
 # Check if toolchain is exist/ If not then download
@@ -68,91 +77,36 @@ else
 				cd $KERNEL_DIR
 fi
 
+# Regened defconfig 
+function make_defconfig {
+    echo "------------------------------";
+    echo " Building Kernel Defconfig..";
+    echo "------------------------------";
 
+	make $BUILD_PARA $DEFCONFIG
 
+	if [[ $1 == "-r" || $1 == "--regen" ]]; then
+			   cp out/.config arch/arm64/configs/$DEFCONFIG
+			   echo -e "\nRegened defconfig succesfully!"
+			   exit 0
+	fi
+}
+
+function make_kernel {
+		echo -e "\nStarting compilation...\n"
+		make $BUILD_PARA Image dtbo.img dtb.img
+}
+
+function link_all_dtb_files {
+    find $TARGET_OUT/arch/arm64/boot/dts/vendor/qcom -name '*.dtb' -exec cat {} + > $TARGET_OUT/arch/arm64/boot/dtb;
+}
 
 function clean_all {
 		cd $KERNEL_DIR
 		echo
 		rm -rf prebuilt
-		rm -rf out && make clean && make mrproper
-}
-
-function clean_half {
-		cd $KERNEL_DIR
-		echo
-		rm -rf out
-}
-
-while read -p "Do you want to clean stuffs (y/n/h)? " cchoice
-do
-case "$cchoice" in
-	y|Y )
-		clean_all
-		echo
-		echo "All Cleaned now."
-		break
-		;;
-	n|N )
-		echo
-		break
-		;;
-	h|N )
-		clean_half
-		echo
-		echo "Remove output folder sucess."
-		break
-		;;		
-	* )
-		echo
-		echo "Invalid try again!"
-		echo
-		;;
-esac
-done
-
-# Delete old file before build
-if [[ $1 = "-c" || $1 = "--clean" ]]; then
-		rm -rf out
-fi
-
-########### Make defconfig and build folder
-mkdir -p out
-make $PROC O=$TARGET_OUT ARCH=arm64 \
-				CLANG_PATH=$TC_DIR/bin \
-				CC="ccache clang" \
-				CXX="ccache clang++" \
-				HOSTCC="ccache clang" \
-				HOSTCXX="ccache clang++" \
-                CROSS_COMPILE=aarch64-linux-gnu- \
-                CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-				CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
-                CLANG_TRIPLE=aarch64-linux-gnu- \
-                LLVM_IAS=1 LLVM=1 $DEFCONFIG
-
-
-# Regened defconfig 
-if [[ $1 == "-r" || $1 == "--regen" ]]; then
-		   cp out/.config arch/arm64/configs/$DEFCONFIG
-		   echo -e "\nRegened defconfig succesfully!"
-		   exit 0
-else
-		echo -e "\nStarting compilation...\n"
-		make $PROC O=$TARGET_OUT ARCH=arm64 \
-				CLANG_PATH=$TC_DIR/bin \
-				CC="ccache clang" \
-				CXX="ccache clang++" \
-				HOSTCC="ccache clang" \
-				HOSTCXX="ccache clang++" \
-                CROSS_COMPILE=aarch64-linux-gnu- \
-                CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-				CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
-                CLANG_TRIPLE=aarch64-linux-gnu- \
-                LLVM_IAS=1 LLVM=1 Image dtbo.img dtb.img
-fi
-
-function link_all_dtb_files {
-    find $TARGET_OUT/arch/arm64/boot/dts/vendor/qcom -name '*.dtb' -exec cat {} + > $TARGET_OUT/arch/arm64/boot/dtb;
+		rm -rf $TARGET_OUT && make clean && make mrproper
+		mkdir -p $TARGET_OUT
 }
 
 # Creating zip flashable file
@@ -208,20 +162,45 @@ function upload_zip {
 ###########################################################################
 #MAIN
 ###########################################################################
+while read -p "Do you want to clean stuffs (y/n/h)? " cchoice
+do
+case "$cchoice" in
+	y|Y )
+		clean_all
+		echo
+		echo "All Cleaned now."
+		make_defconfig
+		link_all_dtb_files
+		make_kernel
+		break
+		;;
+	n|N )
+		make_defconfig
+		link_all_dtb_files
+		make_kernel
+		echo
+		break
+		;;	
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
 if [ -f "out/arch/arm64/boot/Image" ] && [ -f "out/arch/arm64/boot/dtbo.img" ]; then
 		 echo -e "\nKernel compiled succesfully! Zipping up...\n"
 		while read -p "Do you want to create Zip file (y/n/p)? " cchoice
 		do
 		case "$cchoice" in
 			y|Y )
-				link_all_dtb_files
 				create_zip
 				echo -e "\nDone !"
 				upload_zip
 				break
 				;;
 			n|N )
-				link_all_dtb_files
 				echo -e "\nCompleted in $((SECONDS / 60)) minute(s) and $((SECONDS % 60)) second(s) !"
 				break
 				;;
