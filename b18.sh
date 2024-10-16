@@ -24,6 +24,7 @@ export PROC="-j11"
 export TARGET_OUT=out
 export ARCH=arm64
 export SUBARCH=arm64
+export CC="ccache clang"
 
 # Setup environment
 # Kernel Details
@@ -32,10 +33,6 @@ DEFCONFIG="haydn_defconfig vendor/haydn_QGKI.config"
 ZIPNAME="FuAnDo-haydn-A14-$(date '+%Y%m%d-%H%M').zip"
 BUILD_PARA="$PROC O=$TARGET_OUT ARCH=arm64 \
             CLANG_PATH=$TC_DIR/bin \
-            CC=clang \
-            CXX=clang++ \
-            HOSTCC=clang \
-            HOSTCXX=clang++ \
             CROSS_COMPILE=aarch64-linux-gnu- \
             CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
             CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
