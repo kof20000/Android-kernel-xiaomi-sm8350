@@ -407,10 +407,10 @@ HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
 HOSTCC       = ccache clang
 HOSTCXX      = ccache clang++
-KBUILD_HOSTCFLAGS   := -Wmissing-prototypes -Wstrict-prototypes -Ofast \
+KBUILD_HOSTCFLAGS   := -Wmissing-prototypes -Wstrict-prototypes -O3 -ffast-math \
 		-fomit-frame-pointer -Wno-visibility -std=gnu89 -pipe -Wno-deprecated-declarations $(HOST_LFS_CFLAGS) \
 		$(HOSTCFLAGS)
-KBUILD_HOSTCXXFLAGS := -Ofast $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS) -flto=$(BUILDJOBS)
+KBUILD_HOSTCXXFLAGS := -O3 -ffast-math $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS) -flto=$(BUILDJOBS)
 KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
 KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 
@@ -764,7 +764,7 @@ KBUILD_CFLAGS += -O2 -ffast-math
 else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3
 KBUILD_CFLAGS += -O3
 else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_QC_LLVM
-KBUILD_CFLAGS += -Ofast
+KBUILD_CFLAGS += -O3 -ffast-math
 else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS += -Os -ffast-math
 endif

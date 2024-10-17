@@ -8,7 +8,7 @@
 clear
 
 KERNEL_DIR=`pwd`
-export TC_BRANCH="clang-18"
+export TC_BRANCH="clang-19"
 export TC_DIR="$HOME/tc/clang/$TC_BRANCH"
 #export TC_URL="https://gitlab.com/lecmngend/clang"
 #export TC_GIT_BRANCH=$TC_BRANCH
