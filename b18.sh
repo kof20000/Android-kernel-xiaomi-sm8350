@@ -112,7 +112,6 @@ function create_zip {
 		cp -r $AK3_DIR AnyKernel3
 		cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3
 		cp out/arch/arm64/boot/dtbo.img AnyKernel3
-		cp out/arch/arm64/boot/dtb.img AnyKernel3
 
 		# Change dir to AK3 to make zip kernel
 		cd AnyKernel3
@@ -131,7 +130,6 @@ function create_prebuilt {
 		mkdir -p prebuilt
 		cp out/arch/arm64/boot/Image.gz-dtb prebuilt
 		cp out/arch/arm64/boot/dtbo.img prebuilt
-		cp out/arch/arm64/boot/dtb.img prebuilt
 		rm -rf out
 		make clean
 }
