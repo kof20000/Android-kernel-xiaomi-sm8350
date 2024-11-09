@@ -20,8 +20,8 @@ export AK3_URL="https://github.com/lecmngend/AnyKernel3"
 export AK3_BRANCH="U-haydn"
 export AK3_DIR="$HOME/tc/AK3/$AK3_BRANCH"
 
-export PROC="-j11"
-export TARGET_OUT=out
+export PROC="-j12"
+export TARGET_OUT=/mnt/f/rom/kn
 export ARCH=arm64
 export SUBARCH=arm64
 export CC="ccache clang"
@@ -83,7 +83,7 @@ function make_defconfig {
 	make $BUILD_PARA $DEFCONFIG
 
 	if [[ $1 == "-r" || $1 == "--regen" ]]; then
-			   cp out/.config arch/arm64/configs/$DEFCONFIG
+			   cp $TARGET_OUT/.config arch/arm64/configs/$DEFCONFIG
 			   echo -e "\nRegened defconfig succesfully!"
 			   exit 0
 	fi
@@ -95,7 +95,7 @@ function make_kernel {
 }
 
 function link_all_dtb_files {
-    find $TARGET_OUT/arch/arm64/boot/dts/vendor/qcom -name '*.dtb' -exec cat {} + > $TARGET_OUT/arch/arm64/boot/dtb;
+    find $TARGET_$TARGET_OUT/arch/arm64/boot/dts/vendor/qcom -name '*.dtb' -exec cat {} + > $TARGET_$TARGET_OUT/arch/arm64/boot/dtb;
 }
 
 function clean_all {
@@ -108,10 +108,10 @@ function clean_all {
 
 # Creating zip flashable file
 function create_zip {
-		#Copy AK3 to out/Anykernel13
+		#Copy AK3 to $TARGET_OUT/Anykernel13
 		cp -r $AK3_DIR AnyKernel3
-		cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3
-		cp out/arch/arm64/boot/dtbo.img AnyKernel3
+		cp $TARGET_OUT/arch/arm64/boot/Image.gz-dtb AnyKernel3
+		cp $TARGET_OUT/arch/arm64/boot/dtbo.img AnyKernel3
 
 		# Change dir to AK3 to make zip kernel
 		cd AnyKernel3
@@ -120,7 +120,7 @@ function create_zip {
 		#Back to out folder and clean
 		cd ..
 		rm -rf AnyKernel3
-		# rm -rf out/arch/arm64/boot ##keep boot to compile rom
+		# rm -rf $TARGET_OUT/arch/arm64/boot ##keep boot to compile rom
 		echo -e "\nCompleted in $((SECONDS / 60)) minute(s) and $((SECONDS % 60)) second(s) !"
 		echo "Zip: $ZIPNAME"
 }
@@ -128,8 +128,8 @@ function create_zip {
 function create_prebuilt {
 		#Copy Image.gz-dtb.gz and dtbo.img to prebuilt folder
 		mkdir -p prebuilt
-		cp out/arch/arm64/boot/Image.gz-dtb prebuilt
-		cp out/arch/arm64/boot/dtbo.img prebuilt
+		cp $TARGET_OUT/arch/arm64/boot/Image.gz-dtb prebuilt
+		cp $TARGET_OUT/arch/arm64/boot/dtbo.img prebuilt
 		rm -rf out
 		make clean
 }
@@ -184,7 +184,7 @@ case "$cchoice" in
 esac
 done
 
-if [ -f "out/arch/arm64/boot/Image.gz-dtb" ] && [ -f "out/arch/arm64/boot/dtbo.img" ]; then
+if [ -f "$TARGET_OUT/arch/arm64/boot/Image.gz-dtb" ] && [ -f "$TARGET_OUT/arch/arm64/boot/dtbo.img" ]; then
 		 echo -e "\nKernel compiled succesfully! Zipping up...\n"
 		while read -p "Do you want to create Zip file (y/n/p)? " cchoice
 		do
