@@ -21,7 +21,7 @@ export AK3_BRANCH="U-haydn"
 export AK3_DIR="$HOME/tc/AK3/$AK3_BRANCH"
 
 export PROC="-j12"
-export TARGET_OUT=/mnt/f/rom/kn
+export TARGET_OUT=out
 export ARCH=arm64
 export SUBARCH=arm64
 export CC="ccache clang"
