@@ -15,14 +15,26 @@
 #define uid_matches() (getuid() >= 2000)
 
 static const char* const suspicious_paths[] = {
+	"/debug_ramdisk",
+	"/system/etc/permissions",
+	"/system/etc/sysconfig",
+	"/system/product/etc/permissions",
+	"/system/product/etc/sysconfig",
+	"/product/etc/permissions",
+	"/product/etc/sysconfig",
+	"/storage/emulated/0/FOX",
+	"/storage/emulated/0/PBRP",
 	"/storage/emulated/0/TWRP",
+	"/system/framework/oat/arm64",
+	"/system/framework/org.lineageos.platform.apk",
+	"/system/framework/org.lineageos.platform-res.apk",
+	"/system/framework/org.lineageos.platform.jar",
 	"/system/lib/libzygisk.so",
 	"/system/lib64/libzygisk.so",
 	"/dev/zygisk",
 	"/system/addon.d",
 	"/vendor/bin/install-recovery.sh",
-	"/system/bin/install-recovery.sh",
-	"/debug_ramdisk"
+	"/system/bin/install-recovery.sh"
 };
 
 static const char* const suspicious_mount_types[] = {
@@ -30,16 +42,20 @@ static const char* const suspicious_mount_types[] = {
 };
 
 static const char* const suspicious_mount_paths[] = {
+	"/apex/com.android.art/bin/dex2oat",
 	"/data/adb",
 	"/data/app",
-	"/apex/com.android.art/bin/dex2oat",
+	"/dev/zygisk",
 	"/system/apex/com.android.art/bin/dex2oat",
-	"/system/etc/preloaded-classes",
-	"/dev/zygisk"
+	"/system/etc/preloaded-classes"
 };
 
 static const char* const suspicious_mount_devices[] = {
-	"KSU"
+	"KSU",
+	"KSU_SUSFS",
+	"SUS_SU",
+	"SUSFS",
+	"SUSFS_SUS"
 };
 
 static uid_t getuid(void) {
