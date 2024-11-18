@@ -102,7 +102,8 @@ function clean_all {
 		cd $KERNEL_DIR
 		echo
 		rm -rf prebuilt
-		rm -rf $TARGET_OUT && make clean && make mrproper
+		rm -rf $TARGET_OUT 
+		make clean
 		mkdir -p $TARGET_OUT
 }
 
