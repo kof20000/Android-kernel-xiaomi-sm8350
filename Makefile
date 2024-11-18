@@ -410,7 +410,7 @@ HOSTCXX      = ccache clang++
 KBUILD_HOSTCFLAGS   := -Wmissing-prototypes -Wstrict-prototypes -O3 -ffast-math \
 		-fomit-frame-pointer -Wno-visibility -std=gnu89 -pipe -Wno-deprecated-declarations $(HOST_LFS_CFLAGS) \
 		$(HOSTCFLAGS)
-KBUILD_HOSTCXXFLAGS := -O3 -ffast-math $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS) -flto=$(BUILDJOBS)
+KBUILD_HOSTCXXFLAGS := -O3 -ffast-math $(HOST_LFS_CFLAGS) $(HOSTCXXFLAGS) -flto=thin
 KBUILD_HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS) $(HOSTLDFLAGS)
 KBUILD_HOSTLDLIBS   := $(HOST_LFS_LIBS) $(HOSTLDLIBS)
 
