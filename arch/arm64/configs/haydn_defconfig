@@ -1619,7 +1619,6 @@ CONFIG_PCI_ENDPOINT=y
 
 # CONFIG_PCCARD is not set
 # CONFIG_RAPIDIO is not set
-
 #
 # Generic Driver Options
 #
@@ -1627,7 +1626,6 @@ CONFIG_PCI_ENDPOINT=y
 # CONFIG_DEVTMPFS is not set
 CONFIG_STANDALONE=y
 CONFIG_PREVENT_FIRMWARE_BUILD=y
-
 #
 # Firmware loader
 #
@@ -1639,8 +1637,7 @@ CONFIG_FW_LOADER_USER_HELPER_FALLBACK=y
 # CONFIG_FW_LOADER_COMPRESS is not set
 # CONFIG_FW_CACHE is not set
 # end of Firmware loader
-
-CONFIG_WANT_DEV_COREDUMP=y
+#
 # CONFIG_ALLOW_DEV_COREDUMP is not set
 # CONFIG_DEBUG_DRIVER is not set
 # CONFIG_DEBUG_DEVRES is not set
