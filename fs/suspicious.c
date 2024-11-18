@@ -16,19 +16,6 @@
 
 static const char* const suspicious_paths[] = {
 	"/debug_ramdisk",
-	"/system/etc/permissions",
-	"/system/etc/sysconfig",
-	"/system/product/etc/permissions",
-	"/system/product/etc/sysconfig",
-	"/product/etc/permissions",
-	"/product/etc/sysconfig",
-	"/storage/emulated/0/FOX",
-	"/storage/emulated/0/PBRP",
-	"/storage/emulated/0/TWRP",
-	"/system/framework/oat/arm64",
-	"/system/framework/org.lineageos.platform.apk",
-	"/system/framework/org.lineageos.platform-res.apk",
-	"/system/framework/org.lineageos.platform.jar",
 	"/system/lib/libzygisk.so",
 	"/system/lib64/libzygisk.so",
 	"/dev/zygisk",
@@ -38,7 +25,8 @@ static const char* const suspicious_paths[] = {
 };
 
 static const char* const suspicious_mount_types[] = {
-	"overlay"
+	"overlay",
+	"overlayfs"
 };
 
 static const char* const suspicious_mount_paths[] = {
