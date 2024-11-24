@@ -10,11 +10,7 @@ clear
 KERNEL_DIR=`pwd`
 export TC_BRANCH="clang-19"
 export TC_DIR="$HOME/tc/clang/$TC_BRANCH"
-#export TC_URL="https://gitlab.com/lecmngend/clang"
-#export TC_GIT_BRANCH=$TC_BRANCH
-
-export TC_URL="https://gitlab.com/kei-space/clang/r522817"
-export TC_GIT_BRANCH=master
+export TC_URL="https://gitlab.com/lecmngend/clang"
 
 export AK3_URL="https://github.com/lecmngend/AnyKernel3"
 export AK3_BRANCH="U-haydn"
@@ -54,7 +50,7 @@ CHAT_ID="-1001393783342" #Fuando kernel group
 # Check if toolchain is exist/ If not then download
 if ! [ -d "$TC_DIR" ]; then
 		echo "Proton clang not found! Cloning to $TC_DIR..."
-		if ! git clone --single-branch --depth=1 -b $TC_GIT_BRANCH $TC_URL $TC_DIR; then
+		if ! git clone --single-branch --depth=1 -b $TC_BRANCH $TC_URL $TC_DIR; then
 				echo "Cloning failed! Aborting..."
 				exit 1
 		fi
