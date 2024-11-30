@@ -25,7 +25,7 @@ export CC="ccache clang"
 # Setup environment
 # Kernel Details
 KERNEL_VER="$(date '+%Y%m%d-%H%M')"
-DEFCONFIG="haydn_defconfig vendor/haydn_QGKI.config"
+DEFCONFIG="haydn_defconfig"
 ZIPNAME="FuAnDo-haydn-A14-$(date '+%Y%m%d-%H%M').zip"
 BUILD_PARA="$PROC O=$TARGET_OUT ARCH=arm64 \
             CLANG_PATH=$TC_DIR/bin \
