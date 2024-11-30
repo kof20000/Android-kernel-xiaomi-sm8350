@@ -145,3 +145,5 @@ prebuilt/
 t.sh
 KernelSU
 *.symversions
+*.orig
+*.rej
