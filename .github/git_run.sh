@@ -1,50 +1,65 @@
-#!/bin/bash
 #
 # Compile script for FuAnDo haydn kernel
 # Copyright (C) 2024 AGNi.
 # Copyright (C) 2021-2024 @LeCmnGend.
 #
 # Download needed files
+apt-get update -y # Đảm bảo cập nhật danh sách các gói trước khi cài đặt
+apt-get install -y \
+  apt-utils unzip zip cmake curl make git-core git git-lfs gh wget tar zstd \
+  build-essential flex bc binutils-dev bison ca-certificates file \
+  texinfo u-boot-tools xz-utils patchelf \
+  libelf-dev libssl-dev zlib1g-dev libncurses5 bzip2 libbz2-dev libghc-bzlib-dev \
+  libsdl1.2-dev lsb-core ccache
 clear
 
+#Ccache
+export USE_CCACHE=1
+export CCACHE_COMPILER_CHECK="%compiler% -dumpversion"
+export CCACHE_MAXFILES="0"
+export CCACHE_NOHASHDIR="true"
+export CCACHE_UMASK="0002"
+export CCACHE_COMPRESSION="true"
+export CCACHE_COMPRESSION_LEVEL="-3"
+export CCACHE_NOINODECACHE="true"
+export CCACHE_COMPILERTYPE="auto"
+export CCACHE_RUN_SECOND_CPP="true"
+export CCACHE_SLOPPINESS="file_macro,time_macros,include_file_mtime,include_file_ctime,file_stat_matches"
+#================================================================
 export KERNEL_DIR=$(pwd)
+export SOT=$KERNEL_DIR
 echo "Current KERNEL_DIR is: $KERNEL_DIR"
 export TC_BRANCH="clang-19"
-export TC_DIR="$HOME/tc/clang/$TC_BRANCH"
+export TC_DIR="$SOT/tc/clang/$TC_BRANCH"
 export TC_URL="https://gitlab.com/lecmngend/clang"
-
+###
 export AK3_URL="https://github.com/lecmngend/AnyKernel3"
 export AK3_BRANCH="U-haydn"
-export AK3_DIR="$HOME/tc/AK3/$AK3_BRANCH"
-
+export AK3_DIR="$SOT/tc/AK3/$AK3_BRANCH"
+#================================================================
 # Check if toolchain is exist/ If not then download
-if ! [ -d "$TC_DIR" ]; then
-		echo "Proton clang not found! Cloning to $TC_DIR..."
-		if ! git clone --single-branch --depth=1 -b $TC_BRANCH $TC_URL $TC_DIR; then
-				echo "Cloning failed! Aborting..."
-				exit 1
-		fi
-fi
+git clone --single-branch --depth=1 -b $TC_BRANCH $TC_URL $TC_DIR
 
 # Check if AK3 exist	
-if ! [ -d "$AK3_DIR" ]; then
-				echo "$AK3_DIR not found! Cloning to $AK3_DIR..."
-				if ! git clone -q --single-branch --depth 1 -b $AK3_BRANCH $AK3_URL $AK3_DIR; then
-						echo "Cloning failed! Aborting..."
-						exit 1
-				fi
-else
-				echo "$AK3_DIR found! Update $AK3_DIR"
-				cd $AK3_DIR
-				git pull
-				cd $KERNEL_DIR
-fi
+git clone -q --single-branch --depth 1 -b $AK3_BRANCH $AK3_URL $AK3_DIR
+
+curl -LSs "https://raw.githubusercontent.com/LeCmnGend/KernelSU/main/kernel/setup.sh" | bash -
 #================================================================
-export PROC="-j12"
+export TZ=Asia/Bangkok
+export PATH="$TC_DIR/bin:$PATH" 
+BOT_TOKEN="6698627948:AAHlJ9jBioXyTFH726LwAIs5yx1moZr8vKw"
+CHAT_ID="-1001393783342" #Fuando kernel group
+#================================================================
+echo "#================================================================"
+echo "#================================================================"
+echo "#================================================================"
+echo "#================================================================"
+export PROC="-j$(nproc --all)"
 export TARGET_OUT=out
 export ARCH=arm64
 export SUBARCH=arm64
 export CC="ccache clang"
+
 
 # Setup environment
 # Kernel Details
@@ -62,8 +77,7 @@ BUILD_PARA="$PROC O=$TARGET_OUT ARCH=arm64 \
 SECONDS=0 # builtin bash timer
 export USE_CCACHE=1
 export TZ=Asia/Bangkok
-export PATH="$TC_DIR/bin:$PATH" 
-export THINLTO_CACHE_DIR="/mnt/e/.ccache/ltocache/"
+export THINLTO_CACHE_DIR="$SOT/tc/ltocache/"
 export KBUILD_COMPILER_STRING="$($TC_DIR/bin/clang --version | head -n 1 | perl -pe 's/\((?:http|git).*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' -e 's/^.*clang/clang/')"
 STRIP="$TC_DIR/bin/$(echo "$(find "$TC_DIR/bin" -type f -name "aarch64-*-gcc")" | awk -F '/' '{print $NF}' |\
 			sed -e 's/gcc/strip/')"
@@ -122,15 +136,6 @@ function create_zip {
 		echo "Zip: $ZIPNAME"
 }
 
-function create_prebuilt {
-		#Copy Image.gz-dtb.gz and dtbo.img to prebuilt folder
-		mkdir -p prebuilt
-		cp $TARGET_OUT/arch/arm64/boot/Image.gz-dtb prebuilt
-		cp $TARGET_OUT/arch/arm64/boot/dtbo.img prebuilt
-		rm -rf out
-		make clean
-}
-
 # # Upload the ZIP file
 function upload_zip {
     # Kiểm tra nếu tệp ZIP có tồn tại
@@ -154,33 +159,10 @@ function upload_zip {
 ###########################################################################
 #MAIN
 ###########################################################################
-while read -p "Do you want to clean stuffs (y/n/h)? " cchoice
-do
-case "$cchoice" in
-	y|Y )
-		clean_all
-		echo
-		echo "All Cleaned now."
 		make_defconfig
 		link_all_dtb_files
 		make_kernel
-		break
-		;;
-	n|N )
-		make_defconfig
-		link_all_dtb_files
-		make_kernel
-		echo
-		break
-		;;	
-	* )
-		echo
-		echo "Invalid try again!"
-		echo
-		;;
-esac
-done
-
+###
 if [ -f "$TARGET_OUT/arch/arm64/boot/Image.gz-dtb" ] && [ -f "$TARGET_OUT/arch/arm64/boot/dtbo.img" ]; then
 		 echo -e "\nKernel compiled succesfully! Zipping up...\n"
 		while read -p "Do you want to create Zip file (y/n/p)? " cchoice

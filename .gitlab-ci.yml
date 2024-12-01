@@ -1,0 +1,18 @@
+image: ubuntu:22.04  # Sử dụng chung một image cho toàn bộ pipeline
+
+variables:
+  TERM: xterm  # Thiết lập biến TERM để đảm bảo không gặp lỗi về terminal
+
+stages:
+  - build
+
+run_setup_and_script:
+  stage: build
+  script:
+    - chmod a+x .github/git_run.sh
+    - ./.github/git_run.sh  # Khởi tạo môi trường, thiết lập các biến
+
+  only:
+    refs:
+      - U  # Chỉ chạy trên nhánh U
+      - U-mi  # Chỉ chạy trên nhánh U-mi
