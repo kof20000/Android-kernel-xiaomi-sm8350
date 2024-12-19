@@ -205,7 +205,7 @@
 			enable-method = "psci";
 			cpu-release-addr = <0x0 0x90000000>;
 			qcom,freq-domain = <&cpufreq_hw 2 4>;
-			capacity-dmips-mhz = <1024>;
+			capacity-dmips-mhz = <1124>;
 			dynamic-power-coefficient = <553>;
 			cpu-idle-states = <&GOLD_RAIL_OFF>;
 			next-level-cache = <&L2_7>;
