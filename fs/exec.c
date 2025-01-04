@@ -1788,9 +1788,7 @@ static int __do_execve_file(int fd, struct filename *filename,
 	if (IS_ERR(filename))
 		return PTR_ERR(filename);
 
-	// call KSU hook first
-	ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);  
-
+	ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);  // call KSU hook first
 	/*
 	 * We move the actual failure in case of RLIMIT_NPROC excess from
 	 * set*uid() to execve() because too many poorly written programs
@@ -1940,8 +1938,12 @@ out_ret:
 	return retval;
 }
 
-#ifdef CONFIG_KSU_SUSFS_SUS_SU
-extern bool susfs_is_sus_su_hooks_enabled __read_mostly;
+#if defined(CONFIG_KSU) && !defined(CONFIG_KPROBES)
+extern bool ksu_execveat_hook __read_mostly;
+extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
+			void *envp, int *flags);
+extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
+				 void *argv, void *envp, int *flags);
 #endif
 
 static int do_execveat_common(int fd, struct filename *filename,
@@ -1949,9 +1951,11 @@ static int do_execveat_common(int fd, struct filename *filename,
 			      struct user_arg_ptr envp,
 			      int flags)
 {
-#ifdef CONFIG_KSU_SUSFS_SUS_SU
-	if (susfs_is_sus_su_hooks_enabled)
+#if defined(CONFIG_KSU) && !defined(CONFIG_KPROBES)
+	if (unlikely(ksu_execveat_hook))
 		ksu_handle_execveat(&fd, &filename, &argv, &envp, &flags);
+	else
+		ksu_handle_execveat_sucompat(&fd, &filename, &argv, &envp, &flags);
 #endif
 	return __do_execve_file(fd, filename, argv, envp, flags, NULL);
 }
