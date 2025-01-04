@@ -50,7 +50,7 @@ export CC="ccache clang"
 # Kernel Details
 KERNEL_VER="$(date '+%Y%m%d-%H%M')"
 DEFCONFIG="haydn_defconfig"
-ZIPNAME="FuAnDo-haydn-A14-$(date '+%Y%m%d-%H%M').zip"
+ZIPNAME="FuAnDo-haydn-AOSP-$(date '+%Y%m%d-%H%M').zip"
 BUILD_PARA="$PROC O=$TARGET_OUT ARCH=arm64 \
             CLANG_PATH=$TC_DIR/bin \
             CROSS_COMPILE=aarch64-linux-gnu- \
